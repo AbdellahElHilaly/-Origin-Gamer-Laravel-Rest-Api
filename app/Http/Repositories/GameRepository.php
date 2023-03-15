@@ -1,9 +1,10 @@
 <?php
 namespace App\Http\Repositories;
-use App\Http\Interfaces\Repository\GameRepositoryInterface;
-use App\Http\Resources\GameResource;
-use App\Models\Category;
 use App\Models\Game;
+use App\Models\User;
+use App\Models\Category;
+use App\Http\Resources\GameResource;
+use App\Http\Interfaces\Repository\GameRepositoryInterface;
 
 class GameRepository implements GameRepositoryInterface{
 
@@ -19,6 +20,7 @@ class GameRepository implements GameRepositoryInterface{
 
     public function store($attributes)
     {
+        $attributes['user_id'] = auth()->user()->id;
         $games = Game::create($attributes);
         return new GameResource($games);
     }
@@ -39,15 +41,32 @@ class GameRepository implements GameRepositoryInterface{
 
     public function update($id , $attributes)
     {
+        $attributes['user_id'] = auth()->user()->id;
         $game = Game::findOrFail($id);
         $game->update($attributes);
         return new GameResource($game);
     }
 
     public function listByCategory($categoryId){
-        Category::findOrFail($categoryId);
+        $categoryName = Category::findOrFail($categoryId)->name;
         $games = Game::where('category_id', $categoryId)->get();
-        return GameResource::collection($games);
+        $games = GameResource::collection($games);
+
+        $data['categoryName'] = $categoryName;
+        $data['games'] = $games;
+        return $data;
+    }
+
+    public function listByUser($userId){
+
+        $userId = auth()->user()->id ? $userId=="auth" : User::findOrFail($userId)->id;
+        $userName = User::findOrFail($userId)->name;
+        $games = Game::where('user_id', $userId)->get();
+
+        $data['userName'] = $userName;
+        $data['games'] = GameResource::collection($games);
+
+        return $data;
     }
 
 

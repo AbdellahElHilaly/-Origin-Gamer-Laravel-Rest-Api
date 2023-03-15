@@ -14,6 +14,7 @@ class UserRepository  implements UserRepositoryInterface {
     public function register($attributes)
     {
         $attributes['password'] = Hash::make($attributes['password']);
+
         $user = User::create($attributes);
         $token = Auth::login($user);
         $data['user'] = $user;
@@ -26,7 +27,7 @@ class UserRepository  implements UserRepositoryInterface {
     public function login(array $credentials)
     {
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+            $user = $this->getAuth();
             $token = Auth::login($user);
             return new UserResource(['user' => $user, 'token' => $token]);
         }
@@ -36,8 +37,8 @@ class UserRepository  implements UserRepositoryInterface {
 
     public function updateProfile($attributes)
     {
-        $user = Auth::user();
-
+        $attributes['password'] = Hash::make($attributes['password']);
+        $user = $this->getAuth();
         $user->update($attributes);
         $data['user'] = $user;
         $data['token'] = Auth::login($user);
@@ -52,16 +53,30 @@ class UserRepository  implements UserRepositoryInterface {
 
     public function getProfile()
     {
-        $user = Auth::user();
+        $user = $this->getAuth();
         $data['user'] = $user;
         $data['token'] = Auth::login($user);
         return new UserResource($data);
     }
 
-    public function deleteProfile()
+    public function myGames()
     {
         $user = Auth::user();
+        return $user->games()->get();
+    }
+
+
+    public function deleteProfile()
+    {
+        $user = $this->getAuth();
         $user->delete();
+    }
+
+    private function getAuth()
+    {
+        $user = Auth::user();
+        if($user) return $user;
+        throw new \Exception("SYSTEM_CLIENT_ERROR : we can't find any user authentified please log out and log in angain. ");
     }
 }
 

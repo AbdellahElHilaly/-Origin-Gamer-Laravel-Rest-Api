@@ -13,7 +13,6 @@ class GameRepositoryServiceProvider extends ServiceProvider
         $this->app->bind(GameRepositoryInterface::class, GameRepository::class);
     }
 
-
     public function boot(): void
     {
     }

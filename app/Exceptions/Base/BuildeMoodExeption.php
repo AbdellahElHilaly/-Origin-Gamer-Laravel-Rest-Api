@@ -24,7 +24,8 @@ trait BuildeMoodExeption
     {
         switch (true) {
             case $e instanceof ModelNotFoundException:
-                return $this->apiResponse(null, false, 'The requested resource was not found.', Response::HTTP_NOT_FOUND);
+                $modelName = strtolower(class_basename($e->getModel()));
+                return $this->apiResponse(null, false, 'Database ERROR : this '.$modelName.' not found' , Response::HTTP_NOT_FOUND);
             case $e instanceof QueryException:
                 return $this->apiResponse(null, false, 'A database error occurred.', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof AuthenticationException:

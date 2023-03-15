@@ -25,8 +25,10 @@ class AuthController extends Controller
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
-        // $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api')->except(['register','login',]);
+        $this->middleware('alredy.auth')->only(['register','login']);
     }
+
 
     public function register(RegisterRequest $request)
     {

@@ -5,19 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Game extends Model
+class Rule extends Model
 {
     use HasFactory;
     protected $guarded = [];
 
-    public function category()
+    public function rule()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Rule::class);
     }
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(User::class);
     }
-
 }

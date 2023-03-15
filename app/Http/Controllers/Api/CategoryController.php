@@ -21,6 +21,10 @@ class CategoryController extends Controller
 
     public function __construct(CateroyRepositoryInterface $categoryRepository)
     {
+        $this->middleware('auth');
+        $this->middleware('guest');
+        $this->middleware('developer')->only(['update', 'destroy']);
+
         $this->categoryRepository = $categoryRepository;
     }
 

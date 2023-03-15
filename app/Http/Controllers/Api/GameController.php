@@ -19,7 +19,15 @@ class GameController extends Controller
 
     public function __construct(GameRepositoryInterface $gameRepository)
     {
-        $this->gameRepository = $gameRepository;
+        try{
+            $this->middleware('auth');
+            $this->middleware('guest')->except(['index' ]);
+            $this->middleware('developer')->only(['update', 'destroy']);
+            $this->gameRepository = $gameRepository;
+        }catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+
     }
 
 
@@ -56,13 +64,36 @@ class GameController extends Controller
 
             if (strpos($id, 'category=') === 0) {
                 $categoryId = substr($id, strlen('category='));
-                $games  = $this->gameRepository->listByCategory($categoryId);
-                if($games->count()==0)return $this->apiResponse($games, true ,"No games found in this Category !" ,Response::HTTP_NOT_FOUND);
-                return $this->apiResponse($games, true, "Successfully retrieved " . $games->count() . " games for this Category" , Response::HTTP_OK);
+                $games  = $this->gameRepository->listByCategory($categoryId)['games'];
+                $categoryName = $this->gameRepository->listByCategory($categoryId)['categoryName'];
+
+                if($games->count()==0) {
+                    return $this->apiResponse($games, false, "No games were found for the [ ".$categoryName." ] category.", Response::HTTP_NOT_FOUND);
+                } else {
+                    $gameCount = $games->count();
+                    return $this->apiResponse($games, true, "Successfully retrieved ".$gameCount." game(s) for the [ ".$categoryName." ] category.", Response::HTTP_OK);
+                }
+
+
+            }elseif(strpos($id, 'developer=') === 0){
+
+                $developerId = substr($id, strlen('developer='));
+
+                $games  = $this->gameRepository->listByUser($developerId)['games'];
+                $developerName = $this->gameRepository->listByUser($developerId)['userName'];
+
+                if($games->count()==0) {
+                    return $this->apiResponse($games, false, "No games were found for the [ ".$developerName." ] developer.", Response::HTTP_NOT_FOUND);
+                } else {
+                    $gameCount = $games->count();
+                    return $this->apiResponse($games, true, "Successfully retrieved ".$gameCount." game(s) for the [ ".$developerName." ] developer.", Response::HTTP_OK);
+                }
+
             }
 
             $games  = $this->gameRepository->show($id);
             return $this->apiResponse($games, true, "Successfully retrieved the game" , Response::HTTP_OK);
+
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -99,3 +130,5 @@ class GameController extends Controller
 
 
 }
+
+

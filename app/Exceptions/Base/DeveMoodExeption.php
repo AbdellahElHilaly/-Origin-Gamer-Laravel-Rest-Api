@@ -24,9 +24,8 @@ trait DeveMoodExeption
     {
         switch (true) {
             case $e instanceof ModelNotFoundException:
-                $file = $e->getFile();
-                $line = $e->getLine();
-                $message = $e->getMessage();
+                $modelName = strtolower(class_basename($e->getModel()));
+                return $this->apiResponse(null, false, 'Database ERROR : this '.$modelName.' not found!   /// '. $e->getMessage() , Response::HTTP_NOT_FOUND);
             case $e instanceof RelationNotFoundException:
                 return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
             case $e instanceof InvalidCastException:

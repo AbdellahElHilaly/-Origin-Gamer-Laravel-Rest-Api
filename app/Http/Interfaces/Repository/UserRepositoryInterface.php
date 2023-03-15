@@ -12,4 +12,5 @@ interface UserRepositoryInterface
     public function updateProfile($attributes);
     public function getProfile();
     public function deleteProfile();
+    public function myGames();
 }

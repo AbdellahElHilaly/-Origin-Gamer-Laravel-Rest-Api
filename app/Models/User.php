@@ -18,11 +18,7 @@ class User extends Authenticatable Implements JWTSubject
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -61,4 +57,15 @@ class User extends Authenticatable Implements JWTSubject
     {
         return [];
     }
+
+    public function rule()
+    {
+        return $this->belongsTo(Rule::class);
+    }
+
+    public function games()
+    {
+        return $this->hasMany(Game::class);
+    }
+
 }

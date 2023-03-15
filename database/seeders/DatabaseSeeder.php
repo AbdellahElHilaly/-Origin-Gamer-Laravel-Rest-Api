@@ -18,7 +18,10 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            CategorySeeder::class
+            CategorySeeder::class,
+            RulesTableSeeder::class,
+            UsersTableSeeder::class,
+            GamesTableSeeder::class,
         ]);
     }
 }

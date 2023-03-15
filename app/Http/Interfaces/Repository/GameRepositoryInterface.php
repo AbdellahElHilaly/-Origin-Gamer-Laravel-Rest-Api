@@ -10,5 +10,6 @@ interface GameRepositoryInterface
     public function destroy($id);
     public function update($id , $atributes);
     public function listByCategory($categoryId);
+    public function listByUser($userId);
 }
 

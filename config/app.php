@@ -196,6 +196,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\CategoryRepositoryServiceProvider::class,
         App\Providers\UserRepositoryServiceProvider::class,
+        App\Providers\GameRepositoryServiceProvider::class,
+
 
 
     ],
