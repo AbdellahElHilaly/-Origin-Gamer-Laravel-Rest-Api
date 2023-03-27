@@ -217,3 +217,36 @@ class UserRepository  implements UserRepositoryInterface {
 
 }
 
+
+
+// pushin to github
+/*
+
+error :
+
+
+Youcode@DESKTOP-MJTNMDO MINGW32 /c/xampp/htdocs/projects/breifs/Origin_Gamer_APi (main)
+$ git push
+Enumerating objects: 179, done.
+Counting objects: 100% (179/179), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (131/131), done.
+Writing objects: 100% (136/136), 229.47 KiB | 5.34 MiB/s, done.
+Total 136 (delta 39), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (39/39), completed with 23 local objects.
+remote: fatal error in commit_refs
+To https://github.com/AbdellahElHilaly/Origin-Gamer-Laravel-Rest-Api.git
+ ! [remote rejected] main -> main (failure)
+error: failed to push some refs to 'https://github.com/AbdellahElHilaly/Origin-Gamer-Laravel-Rest-Api.git'
+
+Youcode@DESKTOP-MJTNMDO MINGW32 /c/xampp/htdocs/projects/breifs/Origin_Gamer_APi (main)
+$
+
+
+solution :
+
+git push -u origin main
+
+
+
+*/
