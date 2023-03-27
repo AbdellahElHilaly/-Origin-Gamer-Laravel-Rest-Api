@@ -10,10 +10,6 @@ class Rule extends Model
     use HasFactory;
     protected $guarded = [];
 
-    public function rule()
-    {
-        return $this->belongsTo(Rule::class);
-    }
 
     public function users()
     {

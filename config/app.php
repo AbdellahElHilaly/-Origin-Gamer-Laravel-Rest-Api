@@ -197,6 +197,7 @@ return [
         App\Providers\CategoryRepositoryServiceProvider::class,
         App\Providers\UserRepositoryServiceProvider::class,
         App\Providers\GameRepositoryServiceProvider::class,
+        App\Providers\PermissionRepositoryServiceProvider::class,
 
 
 

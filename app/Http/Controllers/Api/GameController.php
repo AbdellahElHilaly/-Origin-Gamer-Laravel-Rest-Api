@@ -10,6 +10,7 @@ use App\Http\Requests\Game\GameStoreRequest;
 use App\Http\Requests\Game\GameUpdateRequest;
 use App\Http\Interfaces\Repository\GameRepositoryInterface;
 
+
 class GameController extends Controller
 {
     use ErorrExeptionsHandler;
@@ -20,14 +21,16 @@ class GameController extends Controller
     public function __construct(GameRepositoryInterface $gameRepository)
     {
         try{
+
             $this->middleware('auth');
-            $this->middleware('guest')->except(['index' ]);
-            $this->middleware('developer')->only(['update', 'destroy']);
+            $this->middleware('account.verified');
+            $this->middleware('permission');
             $this->gameRepository = $gameRepository;
+
         }catch (\Exception $e) {
             return $this->handleException($e);
         }
-
+        
     }
 
 
@@ -37,6 +40,10 @@ class GameController extends Controller
             $games  = $this->gameRepository->all();
             if($games->count()==0)return $this->apiResponse($games, true ,"No games found !" ,Response::HTTP_NOT_FOUND);
             return $this->apiResponse($games, true, "Successfully retrieved " . $games->count() . " games" , Response::HTTP_OK);
+
+
+
+
         } catch (\Exception $e) {
             return $this->handleException($e);
         }

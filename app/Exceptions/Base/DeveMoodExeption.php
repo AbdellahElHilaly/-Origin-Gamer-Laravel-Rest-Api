@@ -20,65 +20,79 @@ use Illuminate\Database\Eloquent\RelationNotFoundException;
 
 trait DeveMoodExeption
 {
+
+
+    private function handelMessage($e){
+
+        $info['message'] = $e->getMessage();
+        $info['file'] = $e->getFile();
+        $info['line'] = $e->getLine();
+
+        return $info;
+    }
+
+
+
+
     private function handleException(\Exception $e)
     {
         switch (true) {
             case $e instanceof ModelNotFoundException:
                 $modelName = strtolower(class_basename($e->getModel()));
-                return $this->apiResponse(null, false, 'Database ERROR : this '.$modelName.' not found!   /// '. $e->getMessage() , Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'Database ERROR : this '.$modelName.' not found!   /// ' , Response::HTTP_NOT_FOUND);
             case $e instanceof RelationNotFoundException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof InvalidCastException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof JsonEncodingException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof HttpResponseException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof PostTooLargeException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof ThrottleRequestsException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof TokenMismatchException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof RequestException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof ConnectionException:
-                return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof QueryException:
                 if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
                     preg_match('/Duplicate entry \'(.*?)\' for key \'(.*?)\'/', $e->getMessage(), $matches);
-                    return $this->apiResponse(null, false, 'The requested resource was not found :  [ '. $matches[1] . ' ] is already taken', Response::HTTP_NOT_FOUND);
+                    return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  [ '. $matches[1] . ' ] is already taken', Response::HTTP_NOT_FOUND);
                 } else {
-                    return $this->apiResponse(null, false, 'The requested resource was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                    return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested resource was not found :  ', Response::HTTP_NOT_FOUND);
                 }
             case $e instanceof AuthenticationException:
-                return $this->apiResponse(null, false, 'Unauthenticated :  '. $e->getMessage(), Response::HTTP_UNAUTHORIZED);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'Unauthenticated :  ', Response::HTTP_UNAUTHORIZED);
             case $e instanceof AuthorizationException:
-                return $this->apiResponse(null, false, 'You are not authorized to perform this action :  '. $e->getMessage(), Response::HTTP_FORBIDDEN);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'You are not authorized to perform this action :  ', Response::HTTP_FORBIDDEN);
             case $e instanceof UnauthorizedException:
-                return $this->apiResponse(null, false, 'You are not authorized to perform this action :  '. $e->getMessage(), Response::HTTP_FORBIDDEN);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'You are not authorized to perform this action :  ', Response::HTTP_FORBIDDEN);
             case $e instanceof RelationNotFoundException:
-                return $this->apiResponse(null, false, 'The requested relation was not found :  '. $e->getMessage(), Response::HTTP_NOT_FOUND);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The requested relation was not found :  ', Response::HTTP_NOT_FOUND);
             case $e instanceof InvalidCastException:
-                return $this->apiResponse(null, false, 'An invalid cast occurred :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'An invalid cast occurred :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof JsonEncodingException:
-                return $this->apiResponse(null, false, 'An error occurred while encoding the JSON data :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'An error occurred while encoding the JSON data :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof RequestException:
-                return $this->apiResponse(null, false, 'An error occurred while sending the request :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'An error occurred while sending the request :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof ConnectionException:
-                return $this->apiResponse(null, false, 'An error occurred while processing the request :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'An error occurred while processing the request :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof ThrottleRequestsException:
-                return $this->apiResponse(null, false, 'Too many requests :  '. $e->getMessage(), Response::HTTP_TOO_MANY_REQUESTS);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'Too many requests :  ', Response::HTTP_TOO_MANY_REQUESTS);
             case $e instanceof TokenMismatchException:
-                return $this->apiResponse(null, false, 'The provided CSRF token is invalid :  '. $e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The provided CSRF token is invalid :  ', Response::HTTP_UNPROCESSABLE_ENTITY);
             case $e instanceof HttpResponseException:
-                return $this->apiResponse(null, false, 'An HTTP response exception occurred :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'An HTTP response exception occurred :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
             case $e instanceof PostTooLargeException:
-                return $this->apiResponse(null, false, 'The uploaded file is too large :  '. $e->getMessage(), Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+                return $this->apiResponse($this->handelMessage($e) ,  false, 'The uploaded file is too large :  ', Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
             case $e instanceof \Exception && strpos($e->getMessage(), 'SYSTEM_CLIENT_ERROR') === 0 :
-                return $this->apiResponse(null, false, $e->getMessage() , Response::HTTP_UNAUTHORIZED);
+                return $this->apiResponse(NULL ,  false, $e->getMessage() , Response::HTTP_UNAUTHORIZED);
             default:
-                return $this->apiResponse(null, false, 'An unexpected error occurred :  '. $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->apiResponse($this->handelMessage($e) , false, 'An unexpected error occurred :  ', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

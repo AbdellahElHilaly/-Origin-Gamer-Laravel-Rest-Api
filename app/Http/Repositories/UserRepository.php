@@ -1,6 +1,11 @@
 <?php
 namespace App\Http\Repositories;
 use App\Models\User;
+use App\Models\Token;
+use App\Helpers\Auth\Code;
+use App\Helpers\Auth\TokenTrait;
+use App\Mail\RegisterVerification;
+use App\Helpers\ApiResponceHandler;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -9,25 +14,37 @@ use App\Http\Interfaces\Repository\UserRepositoryInterface;
 
 class UserRepository  implements UserRepositoryInterface {
 
+    use TokenTrait;
+    use Code;
 
 
-    public function register($attributes)
+    public function register($attributes , $token  , $code)
     {
+        // store token in database
+        // serialize location and network
+        $token['location']  = serialize($token['location']);
+        $token['network']  = serialize($token['network']);
+        // add code to token
+        $token['code'] = $code;
+
+        // store token and get last inserted id
+
+        $token_id = Token::create($token)->id;
+
+
         $attributes['password'] = Hash::make($attributes['password']);
+        $attributes['token_id'] = $token_id;
 
         $user = User::create($attributes);
-        $token = Auth::login($user);
         $data['user'] = $user;
-        $data['token'] = $token;
-
-        return new UserResource($data);
+        return $data;
     }
 
 
     public function login(array $credentials)
     {
         if (Auth::attempt($credentials)) {
-            $user = $this->getAuth();
+            $user = $this->getAuthUser();
             $token = Auth::login($user);
             return new UserResource(['user' => $user, 'token' => $token]);
         }
@@ -38,7 +55,7 @@ class UserRepository  implements UserRepositoryInterface {
     public function updateProfile($attributes)
     {
         $attributes['password'] = Hash::make($attributes['password']);
-        $user = $this->getAuth();
+        $user = $this->getAuthUser();
         $user->update($attributes);
         $data['user'] = $user;
         $data['token'] = Auth::login($user);
@@ -53,7 +70,7 @@ class UserRepository  implements UserRepositoryInterface {
 
     public function getProfile()
     {
-        $user = $this->getAuth();
+        $user = $this->getAuthUser();
         $data['user'] = $user;
         $data['token'] = Auth::login($user);
         return new UserResource($data);
@@ -68,15 +85,135 @@ class UserRepository  implements UserRepositoryInterface {
 
     public function deleteProfile()
     {
-        $user = $this->getAuth();
+        $user = $this->getAuthUser();
         $user->delete();
     }
 
-    private function getAuth()
+
+    public function getAuthUser()
     {
         $user = Auth::user();
         if($user) return $user;
         throw new \Exception("SYSTEM_CLIENT_ERROR : we can't find any user authentified please log out and log in angain. ");
     }
+
+    public function accountVerified(){ // check it for middleware
+        $user = $this->getAuthUser();
+        return $user->email_verified_at != NULL;
+    }
+
+    public function checkActivationAccount($credentials){
+        $user = User::where('email', $credentials['email'])->first();
+        if($user){
+            if($user->email_verified_at == NULL){
+                throw new \Exception("SYSTEM_CLIENT_ERROR : Your account is not activated yet. Please check your email and activate your account.");
+            }
+        }
+    }
+
+
+
+    public function activateAccount($token_id , $code){
+
+        $userToken = Token::find($token_id);
+        $user = User::where('token_id', $token_id)->first();
+
+
+        if($userToken->code != $code)
+            throw new \Exception("SYSTEM_CLIENT_ERROR : Your activation code is not correct. Please check your email and enter the correct code.");
+
+        if($userToken->expires_at < now()){
+            // generet new token and send it to user for activation again
+            $code = $this->generateVerificationCode();
+            $userToken->code = $code;
+            $userToken->expires_at = now()->addMinutes(10);
+            $userToken->save();
+            $mailCode = $this->generateMailCode($token_id , $code);
+
+
+            $mail = new RegisterVerification($user , $mailCode);
+            $mail->sendMail();
+
+            throw new \Exception("SYSTEM_CLIENT_ERROR : Your activation code is expired. Please check your email and enter the new code.");
+        }
+
+        // check if userToken is valid
+        $this->checkToken($userToken);
+
+        // update user email_verified_at by token_id
+
+
+        $user->email_verified_at = now();
+
+        // save user and token
+
+        $user->save();
+        $userToken->save();
+
+
+        return null;
+
+    }
+
+    public function forgotPassword($attributes , $code){
+        $email = $attributes['email'];
+        $user = User::where('email', $email)->first();
+
+        if($user){
+            $token = User::find($user->id)->token;
+            $token->code = $code;
+            $token->expires_at = now()->addMinutes(10);
+            $token->save();
+
+            return $user;
+
+        }
+
+        return null;
+    }
+
+
+    public function ressetPassword($attributes){
+
+        $userToken = Token::findOrFail($attributes['token_id']);
+        $user = User::where('token_id', $attributes['token_id'])->first();
+
+        if($userToken->code !=  $attributes['code'])
+            throw new \Exception("SYSTEM_CLIENT_ERROR : Your activation code is not correct. Please check your email and enter the correct code.");
+
+        if($userToken->expires_at < now()){
+            // generet new token and send it to user for activation again
+            $code = $this->generateVerificationCode();
+            $userToken->code = $attributes['code'];
+            $userToken->expires_at = now()->addMinutes(10);
+            $userToken->save();
+            $mailCode = $this->generateMailCode($attributes['token_id'] , $code);
+
+
+            $mail = new RegisterVerification($user , $mailCode);
+            $mail->sendMail();
+
+            throw new \Exception("SYSTEM_CLIENT_ERROR : Your activation code is expired. Please check your email,  we sent you a new code.");
+
+        }
+
+        // check if userToken is valid
+        $this->checkToken($userToken);
+
+        // update user password
+
+        $user->password = Hash::make($attributes['password']);
+
+        // save user
+
+        $user->save();
+
+        return new UserResource(['user' => $user]);
+
+    }
+
+
+
+
 }
 

@@ -12,6 +12,7 @@ class GameRepository implements GameRepositoryInterface{
     {
         return GameResource::collection(Game::all());
     }
+
     public function show($id)
     {
         $game = Game::findOrFail($id);
@@ -48,11 +49,15 @@ class GameRepository implements GameRepositoryInterface{
     }
 
     public function listByCategory($categoryId){
-        $categoryName = Category::findOrFail($categoryId)->name;
-        $games = Game::where('category_id', $categoryId)->get();
-        $games = GameResource::collection($games);
 
-        $data['categoryName'] = $categoryName;
+        // $categoryName = Category::findOrFail($categoryId)->name;
+        // $games = Game::where('category_id', $categoryId)->get();
+
+        $category = Category::with('games')->findOrFail($categoryId);
+
+        $games = GameResource::collection($category->games);
+
+        $data['categoryName'] = $category->name;
         $data['games'] = $games;
         return $data;
     }
@@ -73,8 +78,9 @@ class GameRepository implements GameRepositoryInterface{
 
     public function checkEmpty(){
         if (Game::count() === 0) {
-            throw new \Exception('Game table is already empty');
+            throw new \Exception('SYSTEM ERROR: Game table is already empty');
         }
     }
+
 }
 

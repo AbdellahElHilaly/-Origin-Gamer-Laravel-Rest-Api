@@ -18,10 +18,7 @@ trait ApiResponceHandler
                         'Date' => $date,
                     ],
             'message' => $message,
-            'Body'=>
-                    [
-                        'data' => $data,
-                    ],
+            'Body'=> $data,
         ];
         if ($data === null) {
             unset($responseData['Body']);

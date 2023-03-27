@@ -15,13 +15,20 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->unsignedBigInteger('rule_id')->default(1);
+            $table->unsignedBigInteger('token_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('rule_id');
             $table->rememberToken();
             $table->timestamps();
 
-            $table->foreign('rule_id')->references('id')->on('rules')->onDelete('restrict');
+            $table->foreign('rule_id')->references('id')->on('rules');
+            $table->foreign('token_id')->references('id')->on('tokens');
+
+
+
+
+
         });
     }
 

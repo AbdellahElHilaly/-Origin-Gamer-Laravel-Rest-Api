@@ -6,15 +6,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+
     public function toArray($request)
     {
-        return [
-            'id' => $this['user']->id,
-            'name' => $this['user']->name,
-            'email' => $this['user']->email,
-            'rule' => $this['user']->rule->name,
-            'token' => $this['token'],
-        ];
+
+        $data['id'] = $this['user']->id;
+        $data['name'] = $this['user']->name;
+        $data['email'] = $this['user']->email;
+        if(isset($this['token'])){
+            $data['token'] = $this['token'];
+        }
+
+        return $data;
     }
 }
 
